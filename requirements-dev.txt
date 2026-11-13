@@ -1,0 +1,4 @@
+# 개발용 (모델 변환·원본 대조): tensorflow, tf2onnx, inaSpeechSegmenter
+inaSpeechSegmenter
+tensorflow
+tf2onnx

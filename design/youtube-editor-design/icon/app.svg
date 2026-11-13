@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="56" fill="#18212C"/>
+  <!-- 남는 멘트 -->
+  <g fill="#5FB8BF">
+    <rect x="40" y="104" width="20" height="48" rx="10"/>
+    <rect x="72" y="84" width="20" height="88" rx="10"/>
+    <rect x="164" y="76" width="20" height="104" rx="10"/>
+    <rect x="196" y="100" width="20" height="56" rx="10"/>
+  </g>
+  <!-- 잘려나간 음악 -->
+  <rect x="106" y="60" width="44" height="136" rx="12" fill="none" stroke="#E0A93A" stroke-width="8" stroke-dasharray="14 10"/>
+  <!-- 온에어 램프 -->
+  <circle cx="210" cy="46" r="14" fill="#D0342C"/>
+</svg>

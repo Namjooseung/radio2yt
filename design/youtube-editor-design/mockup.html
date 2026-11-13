@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유튜브 편집기 시안</title>
+<!-- 시안 미리보기용 CDN. 실제 앱에서는 Pretendard 폰트 파일을 앱에 넣어 로컬 로드할 것 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  /* 편성표 앱과 같은 토큰 */
+  --bg:#E9EDF1; --surface:#FFFFFF; --surface-2:#F5F7F9;
+  --line:#D3DAE1; --line-soft:#E6EAEE;
+  --ink:#18212C; --ink-2:#4A5664; --ink-3:#8793A0;
+  --talk:#1D6B73;  --talk-tint:#D3EBEC;          /* 남는 구간(멘트) = 교양 청록 */
+  --music:#B57A0A; --music-tint:#F5E4BE;         /* 잘리는 구간(음악) = 오락 호박 */
+  --tally:#D0342C; --ok:#2F7D4F; --warn-bg:#FBE7E5;
+  --radius-s:4px; --radius-m:8px;
+  --font:"Pretendard Variable",Pretendard,"Malgun Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#C9D0D7;color:var(--ink);font:13px/1.45 var(--font);font-feature-settings:"tnum";padding:24px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* 시안 전용: 상태 전환 (앱에는 없음) */
+.mock-ctl{width:1280px;margin:0 auto 12px;display:flex;gap:8px;align-items:center;font-size:12px;color:#3B4652}
+.mock-ctl button{border:1px solid #9FAAB5;background:#fff;border-radius:6px;padding:5px 10px;font-weight:600}
+.mock-ctl button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* 앱 창 */
+.app{width:1280px;height:800px;margin:0 auto;display:grid;grid-template-columns:148px 1fr;background:var(--bg);
+  border-radius:10px;overflow:hidden;box-shadow:0 20px 50px rgba(24,33,44,.25)}
+.side{background:var(--ink);color:#E9EDF1;display:flex;flex-direction:column;padding:18px 12px;gap:4px}
+.brand{padding:0 8px 18px}
+.brand b{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.brand span{font-size:12px;color:#9AA7B4;margin-left:5px}
+.brand small{display:block;font-size:12px;color:#9AA7B4;margin-top:2px}
+.nav{display:block;padding:9px 10px;border-radius:var(--radius-m);color:#B9C4CF;font-weight:500}
+.nav[aria-current="page"]{background:#2A3542;color:#fff}
+.side .ver{margin-top:auto;padding:0 10px;font-size:11px;color:#6E7C8A}
+
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.top{background:var(--surface);border-bottom:1px solid var(--line);padding:16px 22px;display:flex;align-items:center;gap:14px}
+.title{font-size:20px;font-weight:800;letter-spacing:-.025em;margin:0}
+.sub{font-size:12px;color:var(--ink-3);margin-top:2px}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--radius-m);padding:7px 12px;font-weight:600}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--ink-2)}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+.state{display:none;flex:1;min-height:0}
+.state.on{display:flex}
+
+/* ── 빈 화면 ── */
+.empty{flex:1;padding:22px;display:flex;flex-direction:column;gap:16px}
+.drop{flex:1;border:2px dashed #AEB9C4;border-radius:12px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.drop .wave-ic{display:flex;gap:4px;align-items:center;height:44px}
+.drop .wave-ic i{width:6px;border-radius:3px;background:var(--talk)}
+.drop .wave-ic i.m{background:var(--music);opacity:.55}
+.drop h2{font-size:20px;margin:6px 0 0;letter-spacing:-.02em}
+.drop p{margin:0;color:var(--ink-2)}
+.drop .btn{margin-top:6px;padding:9px 18px}
+.recent{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m)}
+.recent h3{font-size:13px;margin:0;padding:11px 14px;border-bottom:1px solid var(--line-soft);color:var(--ink-2)}
+.recent .r{display:grid;grid-template-columns:1fr 130px 130px 90px;padding:9px 14px;border-top:1px solid var(--line-soft);align-items:center}
+.recent .r:first-of-type{border-top:0}
+.recent .r span{color:var(--ink-3)}
+.recent .r a{color:var(--talk);font-weight:600;text-align:right}
+
+/* ── 변환 중 ── */
+.proc{flex:1;padding:22px;display:flex;align-items:center;justify-content:center}
+.pcard{width:620px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:26px 28px}
+.pcard .fn{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.pcard .meta{font-size:12px;color:var(--ink-3);margin-top:2px}
+.pbar{height:10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line-soft);margin:20px 0 8px;overflow:hidden}
+.pbar i{display:block;height:100%;width:62%;background:var(--talk);border-radius:999px}
+.prow{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2)}
+.prow b{color:var(--ink)}
+.steps{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:2px}
+.steps li{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-s)}
+.steps li .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.steps li.done .dot{background:var(--ok);border-color:var(--ok)}
+.steps li.now{background:var(--talk-tint)}
+.steps li.now .dot{border-color:var(--talk);border-top-color:transparent;animation:spin 1s linear infinite}
+.steps li span{flex:1}
+.steps li small{color:var(--ink-3)}
+.steps li.wait{color:var(--ink-3)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.steps li.now .dot{animation:none}}
+.pcard .foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--ink-3)}
+
+/* ── 결과 ── */
+.result{flex:1;display:grid;grid-template-columns:1fr 296px;min-height:0}
+.rmain{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:0;min-height:0}
+.tl{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden}
+.ruler{position:relative;height:30px;margin:0 16px;border-bottom:1px solid var(--line-soft)}
+.ruler i{position:absolute;bottom:0;width:1px;background:var(--line);height:6px}
+.ruler i.five{height:12px;background:var(--ink-3)}
+.ruler b{position:absolute;top:4px;font-size:11px;font-weight:600;color:var(--ink-3);transform:translateX(-50%)}
+.lanes{position:relative;margin:0 16px}
+.seglane{position:relative;height:24px;margin-top:8px}
+.seglane .s{position:absolute;top:0;bottom:0;border-radius:var(--radius-s);background:var(--music-tint);color:#7A5205;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap}
+.seglane .s.short{background:transparent;border:1.5px dashed var(--music);color:var(--music)}
+.seglane .s.sel{outline:2px solid var(--ink);outline-offset:1px}
+.wave{position:relative;height:120px;margin:6px 0 4px}
+.wave canvas{position:absolute;inset:0;width:100%;height:100%}
+.ph{position:absolute;top:-38px;bottom:0;width:2px;background:var(--tally);pointer-events:none}
+.ph::before{content:"";position:absolute;top:0;left:-5px;border:6px solid transparent;border-top:8px solid var(--tally)}
+.keptlane{position:relative;height:6px;margin:8px 0 14px;background:var(--music-tint);border-radius:3px;overflow:hidden}
+.keptlane i{position:absolute;top:0;bottom:0;background:var(--talk)}
+.player{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line-soft);background:var(--surface-2)}
+.play{width:34px;height:34px;border-radius:50%;border:0;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center}
+.ib{width:30px;height:30px;border-radius:var(--radius-s);border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center}
+.time{font-weight:700;font-size:14px}
+.time span{color:var(--ink-3);font-weight:500}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:6px 11px;font-size:12px;font-weight:600;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);margin-left:auto}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;border-radius:2px}
+
+.list{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);display:flex;flex-direction:column;min-height:0;flex:1}
+.list h3{font-size:13px;margin:0;padding:11px 14px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline;color:var(--ink-2)}
+.list h3 small{font-weight:500;color:var(--ink-3)}
+.rows{overflow:auto}
+.row{display:grid;grid-template-columns:96px 1fr 84px 84px 64px 96px;align-items:center;padding:0 14px;height:36px;border-top:1px solid var(--line-soft)}
+.row:first-child{border-top:0}
+.row.head{height:30px;font-size:11px;font-weight:700;color:var(--ink-3);background:var(--surface-2);position:sticky;top:0}
+.row .k{font-weight:700;white-space:nowrap}
+.row .k i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--music);margin-right:6px;vertical-align:1px}
+.row .d{color:var(--ink-2)}
+.row .d.flag{color:var(--music);font-weight:600}
+.row.short .k i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--music)}
+.row.sel{background:var(--music-tint)}
+.listen{justify-self:end;white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius-s);padding:4px 9px;font-size:12px;font-weight:600;display:flex;gap:5px;align-items:center}
+.row.sel .listen{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.rside{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.rs{padding:16px;border-bottom:1px solid var(--line-soft)}
+.rs h3{font-size:13px;margin:0 0 10px;color:var(--ink-2)}
+.sum{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.sum div b{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.sum div span{font-size:11px;color:var(--ink-3)}
+.sum .arr{color:var(--ink-3);font-size:16px}
+.sum .out b{color:var(--talk)}
+.sumnote{font-size:12px;color:var(--ink-2);margin-top:8px}
+.thumb{aspect-ratio:16/9;border-radius:var(--radius-m);overflow:hidden;position:relative;background:#22313F}
+.thumb .t1{position:absolute;left:14px;bottom:30px;color:#fff;font-size:19px;font-weight:800;letter-spacing:-.03em}
+.thumb .t2{position:absolute;left:14px;bottom:12px;color:#F5E4BE;font-size:12px;font-weight:700}
+.thumb svg{position:absolute;inset:0;width:100%;height:100%}
+.trow{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--ink-3)}
+.lnk{border:0;background:none;padding:0;color:var(--talk);font-weight:700;font-size:12px}
+.field{margin-top:10px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--ink-3);margin-bottom:4px}
+.field .in{border:1px solid var(--line);border-radius:var(--radius-s);padding:7px 9px;background:var(--surface);display:flex;justify-content:space-between;gap:8px;white-space:nowrap;overflow:hidden}
+.field .in span{overflow:hidden;text-overflow:ellipsis}
+.adv{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:none;padding:0;font-weight:700;color:var(--ink-2)}
+.adv>span:first-child{text-align:left}
+.adv small{display:block;font-weight:500;color:var(--ink-3);font-size:12px;margin-top:2px;text-align:left}
+.rfoot{margin-top:auto;padding:16px}
+.make{width:100%;border:0;border-radius:var(--radius-m);background:var(--ink);color:#fff;font-weight:800;font-size:15px;padding:13px}
+.make:hover{background:#2A3542}
+.rfoot p{margin:8px 0 0;font-size:12px;color:var(--ink-3);text-align:center}
+</style>
+</head>
+<body>
+
+<div class="mock-ctl" role="group" aria-label="시안 상태 전환 (시안 전용)">
+  시안 상태:
+  <button data-s="empty">빈 화면</button>
+  <button data-s="proc">변환 중</button>
+  <button data-s="result" aria-pressed="true">결과</button>
+</div>
+
+<div class="app" id="app">
+  <nav class="side" aria-label="메뉴">
+    <div class="brand"><b>SoneFM</b><span>96.3</span><small>유튜브 편집기</small></div>
+    <a class="nav" aria-current="page">편집</a>
+    <a class="nav">작업 기록</a>
+    <a class="nav">설정</a>
+    <div class="ver">v1.0</div>
+  </nav>
+
+  <main class="main">
+    <!-- 상단 바: 상태별로 내용이 바뀜 -->
+    <header class="top" id="top"></header>
+
+    <!-- 빈 화면 -->
+    <section class="state" data-state="empty">
+      <div class="empty">
+        <div class="drop">
+          <div class="wave-ic" aria-hidden="true">
+            <i style="height:18px"></i><i style="height:30px"></i><i style="height:22px"></i>
+            <i class="m" style="height:40px"></i><i class="m" style="height:44px"></i><i class="m" style="height:36px"></i>
+            <i style="height:26px"></i><i style="height:16px"></i><i style="height:28px"></i>
+          </div>
+          <h2>송출용 mp3를 여기로 끌어다 놓으세요</h2>
+          <p>음악 구간을 찾아 잘라내고, 멘트만 남긴 유튜브용 영상을 만들어요.</p>
+          <button class="btn primary">파일 선택</button>
+        </div>
+        <div class="recent">
+          <h3>최근 작업</h3>
+          <div class="r"><b>오후의플레이리스트_11화.mp3</b><span>11월 3일 15:20</span><span>57:00 → 23:48</span><a>폴더 열기</a></div>
+          <div class="r"><b>수원은지금_04화.mp3</b><span>10월 29일 11:05</span><span>57:00 → 41:12</span><a>폴더 열기</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 변환 중 -->
+    <section class="state" data-state="proc">
+      <div class="proc">
+        <div class="pcard">
+          <div class="fn">오후의플레이리스트_12화.mp3</div>
+          <div class="meta">57:00 · 192kbps · 82MB</div>
+          <div class="pbar"><i></i></div>
+          <div class="prow"><span><b>음악 구간 찾는 중</b> · 62%</span><span>약 1분 남음</span></div>
+          <ol class="steps">
+            <li class="done"><span class="dot">✓</span><span>오디오 읽기</span><small>8초</small></li>
+            <li class="now"><span class="dot"></span><span>음악 구간 찾기</span><small>35:20 / 57:00</small></li>
+            <li class="wait"><span class="dot"></span><span>잘라낼 경계 다듬기</span></li>
+            <li class="wait"><span class="dot"></span><span>미리듣기 파일 만들기</span></li>
+          </ol>
+          <div class="foot"><span>창을 닫아도 작업 기록에 남아요.</span><button class="btn">취소</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 결과 -->
+    <section class="state on" data-state="result">
+      <div class="result">
+        <div class="rmain">
+          <div class="tl">
+            <div class="ruler" id="ruler"></div>
+            <div class="lanes">
+              <div class="seglane" id="seglane"></div>
+              <div class="wave"><canvas id="wave"></canvas><div class="ph" id="ph"></div></div>
+              <div class="keptlane" id="kept" title="남는 구간"></div>
+            </div>
+            <div class="player">
+              <button class="ib" aria-label="이전 구간">⏮</button>
+              <button class="play" aria-label="재생">▶</button>
+              <button class="ib" aria-label="다음 구간">⏭</button>
+              <div class="time" id="time"></div>
+              <div class="seg" role="group" aria-label="듣기 대상">
+                <button aria-pressed="false">원본</button>
+                <button aria-pressed="true">결과</button>
+              </div>
+              <div class="legend">
+                <span><i style="background:var(--talk)"></i>남는 멘트</span>
+                <span><i style="background:var(--music-tint);box-shadow:inset 0 0 0 1px var(--music)"></i>잘린 음악</span>
+                <span><i style="border:1.5px dashed var(--music)"></i>짧은 음악(남김)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="list">
+            <h3>잘린 구간 <span id="cnt"></span><small>· 행을 누르면 그 구간부터 들려줘요</small></h3>
+            <div class="rows" id="rows"></div>
+          </div>
+        </div>
+
+        <aside class="rside">
+          <div class="rs">
+            <h3>결과</h3>
+            <div class="sum">
+              <div><b>57:00</b><span>원본</span></div>
+              <div class="arr">→</div>
+              <div class="out"><b id="outlen"></b><span>유튜브용</span></div>
+            </div>
+            <div class="sumnote" id="sumnote"></div>
+          </div>
+          <div class="rs">
+            <h3>썸네일</h3>
+            <div class="thumb">
+              <svg viewBox="0 0 320 180" preserveAspectRatio="none" aria-hidden="true">
+                <rect width="320" height="180" fill="#22313F"/>
+                <circle cx="262" cy="46" r="70" fill="#1D6B73" opacity=".55"/>
+                <circle cx="300" cy="140" r="54" fill="#B57A0A" opacity=".5"/>
+                <g fill="#D3EBEC" opacity=".35"><rect x="190" y="70" width="5" height="40" rx="2.5"/><rect x="200" y="58" width="5" height="64" rx="2.5"/><rect x="210" y="76" width="5" height="28" rx="2.5"/><rect x="220" y="64" width="5" height="52" rx="2.5"/></g>
+              </svg>
+              <div class="t1">오후의 플레이리스트</div>
+              <div class="t2">12화 · SoneFM 96.3</div>
+            </div>
+            <div class="trow"><span>오후의플레이리스트_표지.png</span><button class="lnk">이미지 바꾸기</button></div>
+          </div>
+          <div class="rs">
+            <h3>저장</h3>
+            <div class="field"><label>파일 이름</label><div class="in"><span>오후의플레이리스트_12화_유튜브.mp4</span></div></div>
+            <div class="field"><label>저장 위치</label><div class="in"><span>문서\SoneFM\유튜브</span><button class="lnk">변경</button></div></div>
+          </div>
+          <div class="rs">
+            <button class="adv"><span>고급 설정<small>최소 음악 길이 20초 · 경계 여유 1.5초</small></span><span aria-hidden="true">›</span></button>
+          </div>
+          <div class="rfoot">
+            <button class="make">영상 만들기</button>
+            <p>1920×1080 · mp4 · 약 1분 걸려요</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ── 시안용 데이터: 57분 방송, 곡 11개 + 12초 징글 1개 ──
+const TOTAL=3420;
+const music=[[95,320],[410,640],[720,955],[1050,1290],[1375,1600],[1700,1935],[2020,2250],[2340,2570],[2650,2880],[2960,3190],[3270,3400]];
+const jingle=[1600,1612];           // 20초 미만 → 자르지 않고 남김
+const SEL=4;                         // 선택된 구간 (곡 5)
+const PLAY=1421;                     // 재생 위치(초)
+const fmt=s=>{s=Math.round(s);return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;};
+const pct=s=>s/TOTAL*100;
+
+const cut=music.reduce((a,[s,e])=>a+e-s,0);
+const keep=TOTAL-cut;
+
+// 상단 바
+const tops={
+  empty:`<div><h1 class="title">유튜브용 편집</h1><div class="sub">송출용 57분 파일에서 음악을 빼고 멘트만 남겨요</div></div><div class="spacer"></div><button class="btn">작업 기록 보기</button>`,
+  proc:`<div><h1 class="title">변환 중</h1><div class="sub">오후의플레이리스트_12화.mp3</div></div><div class="spacer"></div>`,
+  result:`<div><h1 class="title">오후의플레이리스트_12화.mp3</h1><div class="sub">11월 10일 14:40 변환</div></div><span class="badge">변환 완료</span><div class="spacer"></div><button class="btn">다른 파일 열기</button>`
+};
+
+// 눈금자: 1분마다 작은 눈금, 5분마다 숫자 (편성표 월 다이얼과 같은 언어)
+const ru=document.getElementById("ruler");
+for(let m=0;m<=57;m++){
+  const x=pct(m*60);
+  ru.insertAdjacentHTML("beforeend",`<i class="${m%5===0?"five":""}" style="left:${x}%"></i>`);
+  if(m%5===0) ru.insertAdjacentHTML("beforeend",`<b style="left:${x}%">${m}분</b>`);
+}
+
+// 음악 구간 레인
+const sl=document.getElementById("seglane");
+music.forEach(([s,e],i)=>sl.insertAdjacentHTML("beforeend",
+  `<div class="s ${i===SEL?"sel":""}" style="left:${pct(s)}%;width:${pct(e-s)}%">곡 ${i+1}</div>`));
+sl.insertAdjacentHTML("beforeend",`<div class="s short" style="left:${pct(jingle[0])}%;width:max(${pct(jingle[1]-jingle[0])}%,6px)" title="짧은 음악 12초 · 남김"></div>`);
+
+// 남는 구간 막대
+const kept=document.getElementById("kept");
+let prev=0;
+music.forEach(([s,e])=>{ if(s>prev) kept.insertAdjacentHTML("beforeend",`<i style="left:${pct(prev)}%;width:${pct(s-prev)}%"></i>`); prev=e; });
+if(prev<TOTAL) kept.insertAdjacentHTML("beforeend",`<i style="left:${pct(prev)}%;width:${pct(TOTAL-prev)}%"></i>`);
+
+// 파형
+function drawWave(){
+  const c=document.getElementById("wave"),r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  c.width=r.width*dpr;c.height=r.height*dpr;
+  const g=c.getContext("2d");g.scale(dpr,dpr);
+  const W=r.width,H=r.height,mid=H/2,bw=2,gap=1,n=Math.floor(W/(bw+gap));
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const css=getComputedStyle(document.documentElement);
+  const cTalk=css.getPropertyValue("--talk").trim(),cMus=css.getPropertyValue("--music").trim();
+  for(let i=0;i<n;i++){
+    const t=i/n*TOTAL;
+    const isM=music.some(([s,e])=>t>=s&&t<e)||(t>=jingle[0]&&t<jingle[1]);
+    // 멘트: 들쭉날쭉, 음악: 빽빽하고 큼
+    const a=isM?0.55+rnd()*0.4:(rnd()<0.18?0.06:0.18+rnd()*0.5);
+    const h=Math.max(2,a*(H-8));
+    g.fillStyle=isM?cMus:cTalk;
+    g.globalAlpha=isM?0.38:0.95;
+    g.fillRect(i*(bw+gap),mid-h/2,bw,h);
+  }
+  g.globalAlpha=1;
+}
+drawWave();
+document.getElementById("ph").style.left=pct(PLAY)+"%";
+
+// 재생 시간 (결과 기준)
+const outPos=PLAY-music.filter(([s,e])=>e<=PLAY).reduce((a,[s,e])=>a+e-s,0)-Math.max(0,PLAY-music[SEL][0]);
+document.getElementById("time").innerHTML=`곡 5 미리듣기 <span>· 원본 ${fmt(PLAY)}</span>`;
+
+// 목록
+const rows=document.getElementById("rows");
+rows.innerHTML=`<div class="row head"><span>구간</span><span>내용</span><span>시작</span><span>끝</span><span>길이</span><span></span></div>`;
+const all=music.map(([s,e],i)=>({s,e,k:`곡 ${i+1}`,d:"음악 · 잘라냄",i}));
+all.splice(5,0,{s:jingle[0],e:jingle[1],k:"짧은 음악",d:"20초 미만이라 남겨둠",short:1});
+all.forEach(r=>rows.insertAdjacentHTML("beforeend",
+  `<div class="row ${r.short?"short":""} ${r.i===SEL?"sel":""}"><span class="k"><i></i>${r.k}</span><span class="d ${r.short?"flag":""}">${r.d}</span><span>${fmt(r.s)}</span><span>${fmt(r.e)}</span><span>${fmt(r.e-r.s)}</span><button class="listen">${r.i===SEL?"❚❚ 듣는 중":"▶ 듣기"}</button></div>`));
+document.getElementById("cnt").textContent=`${music.length}곳`;
+document.getElementById("outlen").textContent=fmt(keep);
+document.getElementById("sumnote").textContent=`음악 ${music.length}곡, 총 ${fmt(cut)}를 잘라냈어요. 12초짜리 짧은 음악 1곳은 남겨뒀으니 들어보고 확인하세요.`;
+
+// 시안 상태 전환
+function show(s){
+  document.querySelectorAll(".state").forEach(el=>el.classList.toggle("on",el.dataset.state===s));
+  document.querySelectorAll(".mock-ctl button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===s));
+  document.getElementById("top").innerHTML=tops[s];
+  if(s==="result") drawWave();
+}
+document.querySelectorAll(".mock-ctl button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.s)));
+const q=new URLSearchParams(location.search).get("s"); show(q||"result");
+</script>
+</body>
+</html>
