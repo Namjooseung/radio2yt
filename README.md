@@ -22,7 +22,7 @@
 
 ## 설치
 
-[Releases](../../releases)에서 `SoneFM유튜브편집기_설치_<버전>.exe`를 받아 실행합니다. 관리자 권한은 필요 없습니다. ffmpeg와 판별 모델이 들어 있어 인터넷이 없어도 동작합니다.
+[Releases](../../releases/latest)에서 `SoneFM-YoutubeEditor-Setup-<버전>.exe`를 받아 실행합니다. 관리자 권한은 필요 없습니다. ffmpeg와 판별 모델이 들어 있어 인터넷이 없어도 동작합니다.
 
 서명되지 않은 실행 파일이라 "Windows의 PC 보호" 경고가 뜰 수 있습니다. 그때는 **추가 정보 → 실행**을 누르세요.
 
@@ -47,7 +47,7 @@ ffmpeg가 PATH에 있어야 합니다.
 
 [Inno Setup 6](https://jrsoftware.org/isinfo.php)이 필요합니다.
 ```
-.\packaging\build.ps1      # → dist\installer\SoneFM유튜브편집기_설치_<버전>.exe
+.\packaging\build.ps1      # → dist\installer\SoneFM-YoutubeEditor-Setup-<버전>.exe
 ```
 
 버전은 `app/__init__.py`의 `__version__`에서 바꿉니다.

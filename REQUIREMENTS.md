@@ -69,4 +69,4 @@
 - [x] 결과 미리보기 (타임라인 + 원본/결과 재생 + 구간 듣기)
 - [x] 자동 흐름 테스트: 열기→썸네일→분석→재생→영상 만들기→작업 기록, 분석/영상 취소
 - [x] 메모리 절약: 분석 최대 메모리 6.0GB → 0.87GB, 시간 동일(약 27초), 결과 원본과 동일 (56·57화 대조)
-- [x] 설치 파일 제작: `dist\installer\SoneFM유튜브편집기_설치_1.0.exe` (112.7MB). 다시 만들기: `packaging\build.ps1`. 관리자 권한 없이 설치 가능, ffmpeg·모델 포함(인터넷 불필요). 설치→점검(--selftest)→제거 확인
+- [x] 설치 파일 제작: `dist\installer\SoneFM-YoutubeEditor-Setup-1.0.exe` (111MB, GitHub Releases v1.0 공개: https://github.com/Namjooseung/radio2yt/releases/tag/v1.0). 다시 만들기: `packaging\build.ps1`. 관리자 권한 없이 설치 가능, ffmpeg·모델 포함(인터넷 불필요). 설치→점검(--selftest)→제거 확인
