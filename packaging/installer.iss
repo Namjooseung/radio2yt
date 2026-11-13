@@ -1,5 +1,5 @@
 ﻿; Inno Setup 스크립트 — packaging\build.ps1 에서 실행한다.
-; 결과: dist\installer\SoneFM유튜브편집기_설치_<버전>.exe
+; 결과: dist\installer\SoneFM-YoutubeEditor-Setup-<버전>.exe (GitHub가 한글 파일 이름을 지우므로 영문)
 
 #ifndef AppVersion
   #define AppVersion "1.0"
@@ -19,7 +19,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\dist\installer
-OutputBaseFilename=SoneFM유튜브편집기_설치_{#AppVersion}
+OutputBaseFilename=SoneFM-YoutubeEditor-Setup-{#AppVersion}
 SetupIconFile=..\assets\app.ico
 UninstallDisplayIcon={app}\{#AppExe}
 Compression=lzma2/ultra64
