@@ -6,3 +6,4 @@ build/
 dist/
 output/
 packaging/bin/
+assets/client_secret.json

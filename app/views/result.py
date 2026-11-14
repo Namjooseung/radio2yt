@@ -19,6 +19,7 @@ from ..widgets.common import (Callout, Card, IconLabel, button, hbox, label, leg
                               repolish, rounded_pixmap, vbox)
 from ..widgets.thumbs_dialog import ThumbnailDialog
 from ..widgets.timeline import Timeline, fmt_min
+from ..widgets.upload_dialog import UploadDialog
 from .simple import open_folder
 
 PANEL_W = 296
@@ -214,6 +215,9 @@ class ResultView(QWidget):
         open_b.clicked.connect(lambda: open_folder(self.last_output))
         self.done_box.actions.addWidget(open_b)
         self.done_box.hide()
+        self.yt_b = button("유튜브에 올리기", "outline", "lg", icon="upload")
+        self.yt_b.clicked.connect(self._upload)
+        self.yt_b.hide()
         self.err_box = Callout("danger")
         self.err_box.hide()
         self.make_b = button("영상 만들기", "primary", "xl")
@@ -223,7 +227,7 @@ class ResultView(QWidget):
         self.cancel_render_b = button("취소", "ghost", "sm")
         self.cancel_render_b.clicked.connect(self._cancel_render)
         self.cancel_render_b.hide()
-        foot = vbox(self.done_box, self.err_box, self.make_b,
+        foot = vbox(self.done_box, self.yt_b, self.err_box, self.make_b,
                     hbox(None, self.caption, self.cancel_render_b, None, spacing=4),
                     spacing=8, margins=(16, 16, 16, 16))
 
@@ -307,6 +311,7 @@ class ResultView(QWidget):
         self.dir_edit.setToolTip(self.dir_edit.text())
         self.set_thumb(thumb)
         self.done_box.hide()
+        self.yt_b.hide()
         self.err_box.hide()
         self._set_rendering(False)
         self.set_mode("result")
@@ -522,6 +527,7 @@ class ResultView(QWidget):
             return
         self.player.pause()
         self.done_box.hide()
+        self.yt_b.hide()
         self.err_box.hide()
         self._set_rendering(True)
         self.render_worker = workers.RenderWorker(self.preview_audio, self.thumb, str(out), self.a.out_length)
@@ -569,8 +575,12 @@ class ResultView(QWidget):
         self.last_output = out
         self.done_box.set_text(f"저장했습니다\n{Path(out).name}")
         self.done_box.show()
+        self.yt_b.show()
         self.videoSaved.emit({"source": self.a.source, "output": out, "thumbnail": self.thumb,
                               "orig_len": self.a.total, "out_len": self.a.out_length})
+
+    def _upload(self):
+        UploadDialog(self.window(), self.last_output, Path(self.a.source).stem).exec()
 
     def _show_error(self, msg: str):
         self.err_box.set_text(msg)

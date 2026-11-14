@@ -28,7 +28,8 @@ ffmpeg가 PATH에 있어야 한다. 설치판에는 `_internal/bin/ffmpeg.exe`�
 - `engine/segmenter.py`: inaSpeechSegmenter(smn, 성별 판별 없음)의 처리 흐름을 onnxruntime으로 옮긴 것이다. **원본 TensorFlow와 결과가 비트 단위로 같아야 한다.** 메모리를 아끼려고 특징 추출(`FEAT_CHUNK_FRAMES`)과 CNN 입력(`PATCH_CHUNK=1024`)을 나눠 처리한다. 57분 방송 기준 최대 메모리 약 0.87GB, 분석 약 27초다.
 - `engine/vendor/`: 원본에서 복사한 파일이다. `sidekit_mfcc.py`는 **LGPL**이고, scipy dct를 numpy로 바꾼 한 곳만 수정했다(`[radio2yt 수정]` 표시). 다른 곳은 고치지 않는다.
 - `engine/pipeline.py`: 구간 결정(`decide`), 결과 오디오(AAC), mp4 렌더(ffmpeg, 1fps 정지 화면)를 맡는다.
-- `app/`: PySide6 화면. `main.py`(흐름), `views/`(빈 화면·변환 중·결과·작업 기록), `widgets/`(타임라인, 썸네일 선택 창), `workers.py`(작업 스레드), `store.py`(`%APPDATA%\SoneFM 유튜브 편집기`).
+- `app/`: PySide6 화면. `main.py`(흐름), `views/`(빈 화면·변환 중·결과·작업 기록), `widgets/`(타임라인, 썸네일 선택 창, 업로드 창), `workers.py`(작업 스레드), `store.py`(`%APPDATA%\SoneFM 유튜브 편집기`).
+- `app/youtube.py`: Google 로그인(OAuth PKCE, 127.0.0.1 리디렉트)과 YouTube 이어 올리기 업로드. **표준 라이브러리만** 쓴다(google 라이브러리 없음). 로그인 정보는 DPAPI로 암호화해 `youtube_login.bin`에 둔다. 설정 파일 `assets/client_secret.json`은 gitignore 대상이라 저장소에 없으니 사용자에게 받는다. 테스트: `.venv\Scripts\python -m unittest tests.test_youtube`(가짜 Google 서버).
 - `packaging/`: PyInstaller(`sonefm.spec`)와 Inno Setup(`installer.iss`) 설정. `build.ps1` 하나로 설치 파일까지 만든다.
 
 ## 주의점 (실제로 겪은 문제)

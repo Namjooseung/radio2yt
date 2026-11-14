@@ -72,6 +72,25 @@ class RenderWorker(_Worker):
         return self.args[2]
 
 
+class LoginWorker(_Worker):
+    """브라우저로 Google 로그인 → 채널 이름."""
+
+    def work(self):
+        from . import youtube
+        return youtube.login(self.is_cancelled)
+
+
+class UploadWorker(_Worker):
+    def __init__(self, path: str, title: str, description: str):
+        super().__init__()
+        self.args = (path, title, description)
+
+    def work(self):
+        from . import youtube
+        return youtube.upload(*self.args, progress=lambda f: self.progress.emit("upload", f),
+                              is_cancelled=self.is_cancelled)
+
+
 def start(worker: _Worker, parent: QObject) -> QThread:
     """worker를 새 스레드에서 실행하고 스레드를 돌려준다. 끝나면 스스로 정리된다."""
     th = QThread(parent)

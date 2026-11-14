@@ -172,6 +172,8 @@ QPushButton[kind="primary"]:disabled {{ background: {mix(PRIMARY, WHITE, 0.68)};
 {_btn('QPushButton[kind="outline"]', CANVAS, FG, BORDER_2)}
 {_btn('QPushButton[kind="ghost"]', "transparent", PRIMARY_FG)}
 QPushButton[kind="ghost"] {{ padding: 0 4px; }}
+QPushButton[kind="secondary"]:disabled, QPushButton[kind="outline"]:disabled,
+QPushButton[kind="ghost"]:disabled {{ color: {GRAY_300}; }}
 QPushButton[kind="listen"] {{ background: {CANVAS}; border: 1px solid {BORDER_2}; }}
 QPushButton[kind="listen"]:hover {{ background: {mix(CANVAS)}; }}
 QPushButton[kind="listen"][playing="true"] {{ background: {PRIMARY}; color: {WHITE}; border: none; }}
@@ -201,6 +203,11 @@ QLineEdit {{ background: {CANVAS}; border: 1px solid {BORDER_2}; border-radius: 
 QLineEdit:hover {{ border-color: {GRAY_400}; }}
 QLineEdit:focus {{ border-color: {PRIMARY}; }}
 QLineEdit[readOnly="true"] {{ background: {CANVAS_200}; }}
+QPlainTextEdit {{ background: {CANVAS}; border: 1px solid {BORDER_2}; border-radius: 8px;
+    padding: 6px 7px; font-size: 14px;
+    selection-background-color: {PRIMARY_SOFT}; selection-color: {FG}; }}
+QPlainTextEdit:hover {{ border-color: {GRAY_400}; }}
+QPlainTextEdit:focus {{ border-color: {PRIMARY}; }}
 
 /* 표 */
 QTableWidget {{ background: {CANVAS}; border: none; gridline-color: transparent; font-size: 14px;
